@@ -20,7 +20,8 @@
     <div id="main">Loading App...</div>
     <script>
         Elm.App.init({
-            node: document.getElementById('main')
+            node: document.getElementById('main'),
+            flags: Math.floor(Math.random()*0x0FFFFFFF)
         })
     </script>
 </body>
