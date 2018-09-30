@@ -1,6 +1,6 @@
 module App exposing (main)
 
-import Html exposing (div, a, form, text, nav, span, input, label, i)
+import Html exposing (div, a, form, text, nav, span, input, label, p)
 import Html.Attributes exposing (class, type_, value)
 import Html.Events exposing (onInput, onClick)
 import Browser
@@ -36,7 +36,7 @@ reducer action state = case action of
                 title = "",
                 body = "",
                 currentSeed = newSeed
-                
+
             }
     DELETE_NOTE uuid ->
         let
@@ -65,14 +65,39 @@ createNote id title body = {
 addNote notes id title body =
     List.append notes [createNote id title body]
 
+
+
+renderHeader =
+    nav [class "blue z-depth-0"][
+        div [class "brand-logo center"][text "Notes With Dementia"]
+    ]
+
+renderAddNote state =
+    p [][
+        div [class "input-field col s6"][
+            input [type_ "text", onInput CHANGE_TITLE, value state.title][],
+            label [][text "title"]
+        ],
+        div [class "input-field col s6"][
+            input [type_ "text", onInput CHANGE_BODY, value state.body][],
+            label [][text "note"]
+        ],
+        a [class "blue btn-large z-depth-0", onClick ADD][text "add"]
+    ]
+
+renderNoteList state =
+    p[class "row"][
+        div [] (List.map renderNote state.notes)
+    ]
+
 renderNote {id, title, body} =
     let
         handleDelete = DELETE_NOTE id
     in
         div [class "card"][
             div [class "card-content"][
-                span [class "card-title"][text title],
-                text body,
+                p [class "card-title"][text title],
+                p [][text body],
                 div [class "card-action"][
                     a [onClick handleDelete][text "remove"]
                 ]
@@ -81,22 +106,10 @@ renderNote {id, title, body} =
 
 render state =
     div[class "row"][
-        nav [class "blue z-depth-0"][
-            div [class "brand-logo center"][text "Notes With Dementia"]
-        ],
-        div[class "container row"][
-            div [][
-                div [class "input-field col s6"][
-                    input [type_ "text", onInput CHANGE_TITLE, value state.title][],
-                    label [][text "title"]
-                ],
-                div [class "input-field col s6"][
-                    input [type_ "text", onInput CHANGE_BODY, value state.body][],
-                    label [][text "note"]
-                ],
-                a [class "blue btn-large z-depth-0", onClick ADD][text "add"]
-            ],
-            div [] (List.map renderNote state.notes)
+        renderHeader,
+        div [class "container row"][
+            renderAddNote state,
+            renderNoteList state
         ]
     ]
 
