@@ -29,11 +29,23 @@ to run an example.
 
 ### List of examples:
 
-`/counter`: a very basic elm app that demonstrates the use of state
+#### Counter
+
+`/counter`
+
+[view app](http://mi136-counter.appspot.com/)
+
+a very basic elm app that demonstrates the use of state
 
 ![counter screenshot](resources/counter.png)
 
-`/notes-with-dementia`:  a note application that does not store the notes
+#### Notes with Dementia
+
+`/notes-with-dementia`
+
+[view app](http://mi136-notes-with-dementia.appspot.com/)
+
+a note application that does not store the notes
 
 ![notes with dementia screen shot](resources/notes-with-dementia.png)
 
