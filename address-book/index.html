@@ -22,13 +22,33 @@
         const updateCollapsibles = () => {
             const accordion = true
             const collapsables = document.querySelectorAll('.collapsible')
-            console.log(collapsables)
             M.Collapsible.init(collapsables, {accordion})
         }
 
         const app = Elm.App.init({node: document.getElementById('main')})
-        app.ports.view.subscribe((data) => {
+
+        const {ports} = app
+        ports.toMaterial.subscribe((data) => {
             requestAnimationFrame(() => updateCollapsibles())
+        })
+
+
+        ports.toStorage.subscribe((data) => {
+            const {fromStorage} = ports
+            const ADDRESS_BOOK_KEY = 'address-book'
+            const [action, payload] = data
+            switch (action) {
+                case "LOAD": {
+                    const str = localStorage.getItem(ADDRESS_BOOK_KEY)
+                    fromStorage.send(JSON.parse(str))
+                    break
+                }
+                case "SAVE": {
+                    localStorage.setItem(ADDRESS_BOOK_KEY, JSON.stringify(payload))
+                    fromStorage.send(payload)
+                    break
+                }
+            }
         })
     </script>
 </body>

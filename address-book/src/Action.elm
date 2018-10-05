@@ -1,5 +1,10 @@
 module Action exposing (..)
 
+import State exposing (DataState)
+
+
+type alias CmdList = List (Cmd Action)
+
 type AddAction =
     CHANGE_NEW_NAME String
     | CHANGE_NEW_SURNAME String
@@ -19,8 +24,9 @@ type UiAction =
 uiAction actionType = UI actionType
 uiActionWithArg actionType arg = UI (actionType arg)
 
-type DataAction = ADD_ENTRY
+type DataAction = ADD_ENTRY | NEW_DATA DataState
 
 dataAction actionType = DATA actionType
+dataActionWithArg actionType arg = DATA (actionType arg)
 
 type Action = UI UiAction | DATA DataAction | NONE

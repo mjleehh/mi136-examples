@@ -3,9 +3,8 @@ module Reducer exposing (..)
 import Action exposing (..)
 import State exposing (..)
 import Helpers exposing (stringToMaybe)
-import Ports exposing (view)
-
-type alias CmdList = List (Cmd Action)
+import Initial exposing (initialEntry)
+import Ports exposing (updateMaterial, saveData)
 
 noCmd : a -> (a, CmdList)
 noCmd state = (state, [Cmd.none])
@@ -24,8 +23,8 @@ reducer action state = case action of
 
 uiReducer : UiAction -> State -> (UiState, CmdList)
 uiReducer action {ui} = case action of
-    SHOW_ADD -> ({ui | tab = ADD_VIEW}, [view "change"])
-    SHOW_LIST -> ({ui | tab = LIST_VIEW}, [view "change"])
+    SHOW_ADD -> ({ui | tab = ADD_VIEW}, [])
+    SHOW_LIST -> ({ui | tab = LIST_VIEW}, [updateMaterial])
     SEARCH_CHANGED value -> noCmd {ui | search = Just value}
     RESET_SEARCH -> noCmd {ui | search = Nothing}
     ADD_CHANGED add ->
@@ -42,7 +41,8 @@ dataReducer action state = case action of
             newData = {data | entries =  List.append data.entries [ui.newEntry]}
             newUi = {ui | newEntry = initialEntry, tab = LIST_VIEW}
         in
-            ({state | data = newData, ui = newUi}, [view "change"])
+            ({state | ui = newUi}, [updateMaterial, saveData newData])
+    NEW_DATA newData ->  noCmd {state | data = newData}
 
 newEntryReducer : AddAction -> UiState -> (Entry, CmdList)
 newEntryReducer action {newEntry} = noCmd (case action of
