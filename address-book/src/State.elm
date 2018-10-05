@@ -1,6 +1,8 @@
 module State exposing (..)
 
 import Uuid exposing (Uuid)
+import Action exposing (Action)
+import Ports exposing (view)
 
 type alias Entry =
     {
@@ -13,7 +15,7 @@ type alias Entry =
         tags: List String
     }
 
-type Tabs = LIST | CREATE
+type Tabs = LIST_VIEW | ADD_VIEW
 
 type alias UiState =
     {
@@ -42,18 +44,18 @@ initialEntry =
         tags = []
     }
 
-initialState : State
-initialState =
-    {
+initialState : () -> (State, Cmd Action)
+initialState _ =
+    ({
         ui = {
-            tab = LIST,
+            tab = LIST_VIEW,
             search = Nothing,
             newEntry = initialEntry
         },
         data = {
             entries = sampleList
         }
-    }
+    }, view "update")
 
 sampleEntry name surname company phone email tags =
     {

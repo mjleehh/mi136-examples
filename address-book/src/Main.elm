@@ -7,8 +7,17 @@ import State exposing (initialState)
 import Reducer exposing (reducer)
 import View exposing (render)
 
-main = Browser.sandbox {
+subscriptions _ = Sub.none
+
+update action state =
+    let
+        (newState, cmds) = reducer action state
+    in
+        (newState, Cmd.batch cmds)
+
+main = Browser.element {
         init = initialState,
-        update = reducer,
-        view = render
+        update = update,
+        view = render,
+        subscriptions = subscriptions
     }

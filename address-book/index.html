@@ -19,7 +19,17 @@
 <body>
     <div id="main">Loading App...</div>
     <script>
-        Elm.App.init({node: document.getElementById('main')})
+        const updateCollapsibles = () => {
+            const accordion = true
+            const collapsables = document.querySelectorAll('.collapsible')
+            console.log(collapsables)
+            M.Collapsible.init(collapsables, {accordion})
+        }
+
+        const app = Elm.App.init({node: document.getElementById('main')})
+        app.ports.view.subscribe((data) => {
+            requestAnimationFrame(() => updateCollapsibles())
+        })
     </script>
 </body>
 </html>
