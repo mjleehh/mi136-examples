@@ -1,16 +1,23 @@
-port module Ports exposing (updateMaterial, loadData, saveData, fromStorage)
+port module Ports exposing (updateMaterial, loadEntries, addEntry, fromEntries)
 
-import State exposing (DataState)
+import State exposing (Entry, Entries)
 
 updateMaterial = toMaterial ()
 port toMaterial : () -> Cmd msg
 
-type alias MsgForStorage = (String, Maybe DataState)
+type alias MsgForEntries = (String, {entry: Maybe Entry, entries: Maybe Entries})
 
-saveData : DataState -> Cmd msg
-saveData data = toStorage ("SAVE", Just data)
-loadData = toStorage ("LOAD", Nothing)
+saveEntries : Entries -> Cmd msg
+saveEntries entries = toEntries ("SAVE", {
+        entry = Nothing,
+        entries = Just entries
+    })
 
-port toStorage : MsgForStorage -> Cmd msg
-port fromStorage : (Maybe DataState -> msg) -> Sub msg
+loadEntries : Cmd msg
+loadEntries = toEntries ("LOAD", {entry = Nothing, entries = Nothing})
 
+addEntry : Entry -> Cmd msg
+addEntry entry = toEntries ("ADD", {entry = Just entry, entries = Nothing})
+
+port toEntries : MsgForEntries -> Cmd msg
+port fromEntries : (Maybe Entries -> msg) -> Sub msg

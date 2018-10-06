@@ -1,8 +1,8 @@
 module Initial exposing (initialState, initialEntry)
 
-import State exposing (State, Entry, Tabs(..))
+import State exposing (State, Entry, Tabs(..), Status(..))
 import Action exposing (Action, CmdList)
-import Ports exposing (updateMaterial, loadData)
+import Ports exposing (updateMaterial, loadEntries)
 
 initialEntry : Entry
 initialEntry =
@@ -25,9 +25,10 @@ initialState =
             newEntry = initialEntry
         },
         data = {
-            entries = sampleList
+            status = LOADING,
+            entries = []
         }
-    }, [updateMaterial, loadData])
+    }, [updateMaterial, loadEntries])
 
 sampleEntry name surname company phone email tags =
     {

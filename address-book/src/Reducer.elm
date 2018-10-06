@@ -4,7 +4,7 @@ import Action exposing (..)
 import State exposing (..)
 import Helpers exposing (stringToMaybe)
 import Initial exposing (initialEntry)
-import Ports exposing (updateMaterial, saveData)
+import Ports exposing (updateMaterial, addEntry)
 
 noCmd : a -> (a, CmdList)
 noCmd state = (state, [Cmd.none])
@@ -41,8 +41,12 @@ dataReducer action state = case action of
             newData = {data | entries =  List.append data.entries [ui.newEntry]}
             newUi = {ui | newEntry = initialEntry, tab = LIST_VIEW}
         in
-            ({state | ui = newUi}, [updateMaterial, saveData newData])
-    NEW_DATA newData ->  noCmd {state | data = newData}
+            ({state | ui = newUi}, [updateMaterial, addEntry ui.newEntry])
+    UPDATE_ENTRIES entries ->
+        let
+            {data} = state
+        in
+            noCmd {state | data = {data | entries = entries, status = DEFAULT}}
 
 newEntryReducer : AddAction -> UiState -> (Entry, CmdList)
 newEntryReducer action {newEntry} = noCmd (case action of

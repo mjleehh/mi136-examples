@@ -1,6 +1,6 @@
 module Action exposing (..)
 
-import State exposing (DataState)
+import State exposing (Entries)
 
 
 type alias CmdList = List (Cmd Action)
@@ -24,7 +24,7 @@ type UiAction =
 uiAction actionType = UI actionType
 uiActionWithArg actionType arg = UI (actionType arg)
 
-type DataAction = ADD_ENTRY | NEW_DATA DataState
+type DataAction = ADD_ENTRY | UPDATE_ENTRIES Entries
 
 dataAction actionType = DATA actionType
 dataActionWithArg actionType arg = DATA (actionType arg)

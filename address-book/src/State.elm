@@ -20,7 +20,15 @@ type alias UiState =
         newEntry: Entry
     }
 
-type alias DataState = {entries: List Entry}
+type alias Entries = List Entry
+
+type Status = DEFAULT | STORING | LOADING
+
+type alias DataState =
+    {
+        status: Status,
+        entries: List Entry
+    }
 
 type alias State =
     {

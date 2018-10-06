@@ -5,6 +5,8 @@ import Html.Attributes exposing (class)
 import Html.Events exposing (onClick)
 import State exposing (State, Entry)
 import Action exposing (Action, uiAction, uiActionWithArg, UiAction(..))
+import Helpers exposing (maybeToString)
+
 
 renderListView : State -> Html Action
 renderListView state =
@@ -30,7 +32,7 @@ renderEntry entry =
         li [][
             div [class "collapsible-header"][text name, text " ", text surname],
             div [class "collapsible-body"][
-                p [][text "company"],
+                p [][text "company: ", text (maybeToString entry.company)],
                 p [][text "company"],
                 p [][text "ouccompany"],
                 p [][text "company"],

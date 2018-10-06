@@ -1,14 +1,14 @@
 module Subscriptions exposing (subscriptions)
 
-import State exposing (State, DataState)
+import State exposing (State, Entries)
 import Action exposing (Action(..), dataActionWithArg, DataAction(..))
-import Ports exposing (fromStorage)
+import Ports exposing (fromEntries)
 
-updateData : Maybe DataState -> Action
+updateData : Maybe Entries -> Action
 updateData payload = case payload of
-    Just data -> dataActionWithArg NEW_DATA data
+    Just entries -> dataActionWithArg UPDATE_ENTRIES entries
     Nothing -> NONE
 
 
 subscriptions : State -> Sub Action
-subscriptions _ = fromStorage updateData
+subscriptions _ = fromEntries updateData
