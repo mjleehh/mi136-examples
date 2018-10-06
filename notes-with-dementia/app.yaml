@@ -22,3 +22,7 @@ skip_files:
 - package.json.lock
 - webpack.config.js
 - project_name
+- start
+- build
+- deploy
+- dist
