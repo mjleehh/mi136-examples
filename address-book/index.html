@@ -13,43 +13,8 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
 
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
-
-    <script src="js/main.js"></script>
 </head>
 <body>
     <div id="main">Loading App...</div>
-    <script>
-        const updateCollapsibles = () => {
-            const accordion = true
-            const collapsables = document.querySelectorAll('.collapsible')
-            M.Collapsible.init(collapsables, {accordion})
-        }
-
-        const app = Elm.App.init({node: document.getElementById('main')})
-
-        const {ports} = app
-        ports.toMaterial.subscribe((data) => {
-            requestAnimationFrame(() => updateCollapsibles())
-        })
-
-
-        ports.toStorage.subscribe((data) => {
-            const {fromStorage} = ports
-            const ADDRESS_BOOK_KEY = 'address-book'
-            const [action, payload] = data
-            switch (action) {
-                case "LOAD": {
-                    const str = localStorage.getItem(ADDRESS_BOOK_KEY)
-                    fromStorage.send(JSON.parse(str))
-                    break
-                }
-                case "SAVE": {
-                    localStorage.setItem(ADDRESS_BOOK_KEY, JSON.stringify(payload))
-                    fromStorage.send(payload)
-                    break
-                }
-            }
-        })
-    </script>
 </body>
 </html>
