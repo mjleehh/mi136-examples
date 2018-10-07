@@ -23,7 +23,7 @@ reducer action state = case action of
 
 uiReducer : UiAction -> State -> (UiState, CmdList)
 uiReducer action {ui} = case action of
-    SHOW_ADD -> ({ui | tab = ADD_VIEW}, [])
+    SHOW_ADD -> ({ui | tab = ADD_VIEW}, [updateMaterial])
     SHOW_LIST -> ({ui | tab = LIST_VIEW}, [updateMaterial])
     SEARCH_CHANGED value -> noCmd {ui | search = Just value}
     RESET_SEARCH -> noCmd {ui | search = Nothing}
@@ -38,15 +38,15 @@ dataReducer action state = case action of
     ADD_ENTRY ->
         let
             {data, ui} = state
-            newData = {data | entries =  List.append data.entries [ui.newEntry]}
+            newData = {data | status = STORING}
             newUi = {ui | newEntry = initialEntry, tab = LIST_VIEW}
         in
-            ({state | ui = newUi}, [updateMaterial, addEntry ui.newEntry])
+            ({state | ui = newUi, data = newData}, [addEntry ui.newEntry])
     UPDATE_ENTRIES entries ->
         let
             {data} = state
         in
-            noCmd {state | data = {data | entries = entries, status = DEFAULT}}
+            ({state | data = {data | entries = entries, status = DEFAULT}}, [updateMaterial])
 
 newEntryReducer : AddAction -> UiState -> (Entry, CmdList)
 newEntryReducer action {newEntry} = noCmd (case action of
@@ -54,5 +54,6 @@ newEntryReducer action {newEntry} = noCmd (case action of
     CHANGE_NEW_SURNAME surname -> {newEntry | surname = stringToMaybe surname}
     CHANGE_NEW_COMPANY company -> {newEntry | company = stringToMaybe company}
     CHANGE_NEW_EMAIL email -> {newEntry | email = email}
-    CHANGE_NEW_PHONE phone -> {newEntry | phone = stringToMaybe phone})
+    CHANGE_NEW_PHONE phone -> {newEntry | phone = stringToMaybe phone}
+    CHANGE_NEW_TAGS tags -> {newEntry | tags = tags})
 

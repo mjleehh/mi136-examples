@@ -1,20 +1,31 @@
 import {Elm} from './Main.elm'
 import uuid from 'uuid/v4'
 
+const SIMMULATED_DELAY = 0
+
+const app = Elm.App.init({node: document.getElementById('main')})
+
+const {ports} = app
 
 const updateCollapsibles = () => {
     const accordion = true
     const collapsables = document.querySelectorAll('.collapsible')
     M.Collapsible.init(collapsables, {accordion})
+
+    function updateNewTags(chips) {
+        const chipValues = M.Chips.getInstance(chips[0])
+            .getData()
+            .map(({tag}) => tag)
+        ports.fromNewTags.send(chipValues)
+    }
+    const chips = document.querySelectorAll('.add-entry-tags')
+    M.Chips.init(chips, {
+        placeholder: 'tags',
+        onChipAdd: updateNewTags,
+        onChipDelete: updateNewTags,
+    })
 }
 
-console.log(uuid())
-
-const app = Elm.App.init({node: document.getElementById('main')})
-
-
-
-const {ports} = app
 ports.toMaterial.subscribe((data) => {
     requestAnimationFrame(() => updateCollapsibles())
 })
@@ -31,7 +42,7 @@ ports.toEntries.subscribe((data) => {
             const newEntry = {...entry, id: uuid()}
             data.push(newEntry)
             localStorage.setItem(ENTRIES_KEY, JSON.stringify(data))
-            fromEntries.send(data)
+            setTimeout(() => fromEntries.send(data), SIMMULATED_DELAY)
             break
         }
         case "SAVE": {
@@ -42,7 +53,7 @@ ports.toEntries.subscribe((data) => {
         case "LOAD": {
             const str = localStorage.getItem(ENTRIES_KEY)
             const data = JSON.parse(str)
-            fromEntries.send(data)
+            setTimeout(() => fromEntries.send(data), SIMMULATED_DELAY)
             break
         }
     }

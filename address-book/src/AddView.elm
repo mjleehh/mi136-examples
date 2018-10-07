@@ -17,26 +17,33 @@ renderAddView {ui} =
         company = maybeToString entry.company
         phone = maybeToString entry.phone
     in
-        p [][
-            div [class "input-field col s6"][
-                input [type_ "text", value entry.name, onInput (addActionWithArg CHANGE_NEW_NAME)][],
-                label [][text "name"]
+        div [class "row"][
+            div [][
+                div [class "input-field col s6"][
+                    input [type_ "text", value entry.name, onInput (addActionWithArg CHANGE_NEW_NAME)][],
+                    label [][text "name"]
+                ],
+                div [class "input-field col s6"][
+                    input [type_ "text", value surname, onInput (addActionWithArg CHANGE_NEW_SURNAME)][],
+                    label [][text "surname"]
+                ],
+                div [class "input-field col s6"][
+                    input [type_ "text", value company, onInput (addActionWithArg CHANGE_NEW_COMPANY)][],
+                    label [][text "company"]
+                ],
+                div [class "input-field col s6"][
+                    input [type_ "text", value entry.email, onInput (addActionWithArg CHANGE_NEW_EMAIL)][],
+                    label [][text "email"]
+                ],
+                div [class "input-field col s12"][
+                    input [type_ "text", value phone, onInput (addActionWithArg CHANGE_NEW_PHONE)][],
+                    label [][text "phone"]
+                ],
+                div [class "input-field col s12"][
+                    div [class "chips add-entry-tags"][]
+                ]
             ],
-            div [class "input-field col s6"][
-                input [type_ "text", value surname, onInput (addActionWithArg CHANGE_NEW_SURNAME)][],
-                label [][text "surname"]
-            ],
-            div [class "input-field col s6"][
-                input [type_ "text", value company, onInput (addActionWithArg CHANGE_NEW_COMPANY)][],
-                label [][text "company"]
-            ],
-            div [class "input-field col s6"][
-                input [type_ "text", value entry.email, onInput (addActionWithArg CHANGE_NEW_EMAIL)][],
-                label [][text "email"]
-            ],
-            div [class "input-field col s6"][
-                input [type_ "text", value phone, onInput (addActionWithArg CHANGE_NEW_PHONE)][],
-                label [][text "phone"]
-            ],
-            a [class "blue btn-large z-depth-0", onClick (dataAction ADD_ENTRY)][text "add"]
+            div [][
+                a [class "blue btn-large z-depth-0", onClick (dataAction ADD_ENTRY)][text "add"]
+            ]
         ]

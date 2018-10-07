@@ -1,10 +1,10 @@
 module View exposing (render)
 
-import Html exposing (Html, div, nav, a, text)
+import Html exposing (Html, div, nav, a, text, p)
 import Html.Attributes exposing (class)
 import Html.Events exposing (onClick, onInput)
 
-import State exposing (State, Tabs(..))
+import State exposing (State, Tabs(..), Status(..))
 import Action exposing (Action)
 import SearchView exposing (renderSearchView)
 import ListView exposing (renderListView)
@@ -28,6 +28,24 @@ renderHeader state =
         ]
     ]
 
-renderBody state = case state.ui.tab of
-    LIST_VIEW -> renderListView state
-    ADD_VIEW -> renderAddView state
+renderBody state = if state.data.status == DEFAULT
+    then
+        case state.ui.tab of
+            LIST_VIEW -> renderListView state
+            ADD_VIEW -> renderAddView state
+    else
+        p [class "center"][
+            div [class "preloader-wrapper big active"][
+                div [class "spinner-layer spinner-blue-only"][
+                    div [class "circle-clipper left"][
+                        div [class "circle"][]
+                    ],
+                    div [class "gap-patch"][
+                      div [class "circle"][]
+                    ],
+                    div [class "circle-clipper right"][
+                      div [class "circle"][]
+                    ]
+                ]
+            ]
+        ]

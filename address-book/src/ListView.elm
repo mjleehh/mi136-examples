@@ -18,8 +18,22 @@ renderListView state =
     ]
 
 renderList : State -> Html Action
-renderList {data} =
-    ul [class "collapsible"] (List.map renderEntry data.entries)
+renderList state =
+    ul [class "collapsible"] (List.map renderEntry (filterList state))
+
+
+filterList {ui, data} = case ui.search of
+    Nothing -> data.entries
+    Just filter -> List.filter (filterPredicate filter) data.entries
+
+filterPredicate : String -> Entry -> Bool
+filterPredicate filter entry =
+    let
+        lowerFilter = String.toLower filter
+        lowerName = String.toLower entry.name
+        lowerSurname = String.toLower (maybeToString entry.surname)
+    in
+        String.contains lowerFilter lowerName || String.contains lowerFilter lowerSurname
 
 renderEntry : Entry -> Html Action
 renderEntry entry =
@@ -33,9 +47,9 @@ renderEntry entry =
             div [class "collapsible-header"][text name, text " ", text surname],
             div [class "collapsible-body"][
                 p [][text "company: ", text (maybeToString entry.company)],
-                p [][text "company"],
-                p [][text "ouccompany"],
-                p [][text "company"],
+                p [][text "email", text entry.email],
+                p [][text "phone", text (maybeToString entry.phone)],
+                p [][text "tags"],
                 p [][
                     button [class "btn-large-floating"][text "remove"]
                 ]

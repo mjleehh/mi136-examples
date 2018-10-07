@@ -20,7 +20,7 @@ initialState : (State, CmdList)
 initialState =
     ({
         ui = {
-            tab = LIST_VIEW,
+            tab = ADD_VIEW,
             search = Nothing,
             newEntry = initialEntry
         },

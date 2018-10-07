@@ -1,9 +1,11 @@
-port module Ports exposing (updateMaterial, loadEntries, addEntry, fromEntries)
+port module Ports exposing (updateMaterial, loadEntries, addEntry, fromEntries, fromNewTags)
 
-import State exposing (Entry, Entries)
+import State exposing (Entry, Entries, Tags)
 
 updateMaterial = toMaterial ()
 port toMaterial : () -> Cmd msg
+
+port fromNewTags : (Tags -> msg) -> Sub msg
 
 type alias MsgForEntries = (String, {entry: Maybe Entry, entries: Maybe Entries})
 

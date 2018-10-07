@@ -1,5 +1,7 @@
 module State exposing (..)
 
+type alias Tags = List String
+
 type alias Entry =
     {
         id: Maybe String,
@@ -8,7 +10,7 @@ type alias Entry =
         company: Maybe String,
         email: String,
         phone: Maybe String,
-        tags: List String
+        tags: Tags
     }
 
 type Tabs = LIST_VIEW | ADD_VIEW
