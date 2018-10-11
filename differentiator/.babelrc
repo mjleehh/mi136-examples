@@ -1,0 +1,13 @@
+{
+  "env": {
+    "development": {
+      "presets": [
+        ["@babel/env", {"targets": {"chrome": "69", "firefox": "62"}}],
+      ],
+      "plugins": [
+        ["@babel/plugin-proposal-decorators", {"legacy": true}],
+        "@babel/proposal-object-rest-spread"
+      ]
+    }
+  }
+}
