@@ -1,50 +1,76 @@
 port module App exposing (main)
 
-import Html exposing (Html, p, text, button)
-import Html.Events exposing (onClick)
+import Html exposing (Html, label, div, text, button, input)
+import Html.Attributes exposing (type_, value)
+import Html.Events exposing (onClick, onInput)
 import Browser
 
-type Action = CLICK_RANDOM | SET_RANDOM Float | None
-
-type alias State = {num: Float}
-
+process : String -> Float -> (Float, String, Float)
+process function x = (0, "", 0)
 
 
-port toRandom : () -> Cmd msg
-port fromRandom : (Float -> msg) -> Sub msg
+type Action = FUNCTION_CHANGED String | X_CHANGED String | PROCESS
+
+type alias State =
+    {
+        f: String,
+        x: Float,
+        f_y: Maybe Float,
+        df: Maybe String,
+        df_y: Maybe Float
+    }
 
 
-init : () -> (State, Cmd msg)
-init _ = (
-        {num = 0.0},
-        toRandom ()
-    )
+init = {
+        f = "",
+        x = 0,
+        f_y = Nothing,
+        df = Nothing,
+        df_y = Nothing
+    }
 
-noCmd : State -> (State, Cmd msg)
-noCmd state = (state, Cmd.none)
-
-update : Action -> State -> (State, Cmd msg)
 update action state = case action of
-    CLICK_RANDOM -> (state, toRandom ())
-    SET_RANDOM random -> noCmd {state | num = random}
-    _ -> noCmd state
+    FUNCTION_CHANGED value -> {state | f = value, f_y = Nothing, df = Nothing, df_y = Nothing}
+    X_CHANGED value -> state
+    PROCESS ->
+        let
+            (f_y, df, df_y) = process state.f state.x
+        in
+            {state | f_y = Just f_y, df = Just df, df_y = Just df_y}
 
-render : State -> Html Action
-render state = p [][
-        button [onClick CLICK_RANDOM][text "new random"],
-        text "random: ",
-        state.num |> String.fromFloat |> text
-    ]
+    printStringMaybe maybe = case maybe of
+        Just value -> text value
+        Nothing -> text " "
 
-updateRandom : Float -> Action
-updateRandom random = SET_RANDOM random
+    printFloatMaybe maybe = case maybe of
+        Just value -> text (String.fromFloat value)
+        Nothing -> text " "view state =
+    let
+        printStringMaybe maybe = case maybe of
+            Just value -> text value
+            Nothing -> text " "
 
-subscriptions : State -> Sub Action
-subscriptions _ = fromRandom updateRandom
+        printFloatMaybe maybe = case maybe of
+            Just value -> text (String.fromFloat value)
+            Nothing -> text " "
+    in
+        div [][
+            div [][
+                label [][text "function"],
+                input [type_ "text", onInput FUNCTION_CHANGED, value state.f][]
+            ],
+            div [][
+                label [][text "x"],
+                input [type_ "number", onInput X_CHANGED][]
+            ],
+            div [][button [][text "process"]],
+            div [][printFloatMaybe state.f_y],
+            div [][printStringMaybe state.df],
+            div [][printFloatMaybe state.df_y]
+        ]
 
-main = Browser.element {
+main = Browser.sandbox {
         init = init,
         update = update,
-        view = render,
-        subscriptions = subscriptions
+        view = view
     }
