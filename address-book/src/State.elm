@@ -4,7 +4,6 @@ type alias Tags = List String
 
 type alias Entry =
     {
-        id: Maybe String,
         name: String,
         surname: Maybe String,
         company: Maybe String,
@@ -13,6 +12,8 @@ type alias Entry =
         tags: Tags
     }
 
+type alias EntryWithId = (String, Entry)
+
 type Tabs = LIST_VIEW | ADD_VIEW | MODIFY_VIEW
 
 type alias UiState =
@@ -20,17 +21,17 @@ type alias UiState =
         tab: Tabs,
         search: Maybe String,
         newEntry: Entry,
-        modifyEntry: Entry
+        modifyEntry: EntryWithId
     }
 
-type alias Entries = List Entry
+type alias Entries = List EntryWithId
 
 type Status = DEFAULT | STORING | LOADING
 
 type alias DataState =
     {
         status: Status,
-        entries: List Entry
+        entries: Entries
     }
 
 type alias State =

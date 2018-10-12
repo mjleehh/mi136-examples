@@ -5,18 +5,17 @@ import Action exposing (..)
 import State exposing (..)
 import Helpers exposing (stringToMaybe)
 import Initial exposing (initialEntry)
-import Ports exposing (updateMaterial, addEntry, removeEntry)
+import Api.Entries exposing (addEntry, removeEntry)
+import Api.Material exposing (updateMaterial)
 
 
-noCmd : a -> (a, CmdList)
+noCmd : a -> (a, List (Cmd msg))
 noCmd state = (state, [Cmd.none])
 
-entryHasId : String -> Entry -> Bool
-entryHasId id entry = case entry.id of
-        Just elemId -> elemId == id
-        Nothing -> False
+entryHasId : String -> EntryWithId -> Bool
+entryHasId id (elemId, _) = elemId == id
 
-findEntry : String -> Entries -> Maybe Entry
+findEntry : String -> Entries -> Maybe EntryWithId
 findEntry id entries = List.Extra.find (entryHasId id) entries
 
 reducer : Action -> State -> (State, List (Cmd Action))
@@ -29,7 +28,7 @@ reducer action state = case action of
     DATA data -> dataReducer data state
     _ -> noCmd state
 
-uiReducer : UiAction -> State -> (UiState, CmdList)
+uiReducer : UiAction -> State -> (UiState, List (Cmd msg))
 uiReducer action {ui, data} = case action of
     SHOW_ADD -> ({ui | tab = ADD_VIEW}, [updateMaterial])
     SHOW_MODIFY id ->
@@ -47,16 +46,17 @@ uiReducer action {ui, data} = case action of
     RESET_SEARCH -> noCmd {ui | search = Nothing}
     ADD_CHANGED add ->
         let
-            newEntry = entryReducer add ui
+            newEntry = entryReducer add ui.newEntry
         in
             noCmd {ui | newEntry = newEntry}
     MODIFY_CHANGED modify ->
         let
-            modifyEntry = entryReducer modify ui
+            (id, entry) = ui.modifyEntry
+            modifyEntry = entryReducer modify entry
         in
-            noCmd {ui | modifyEntry = modifyEntry}
+            noCmd {ui | modifyEntry = (id, modifyEntry)}
 
-dataReducer : DataAction -> State -> (State, CmdList)
+dataReducer : DataAction -> State -> (State, (List (Cmd msg)))
 dataReducer action state = case action of
     ADD_ENTRY ->
         let
@@ -79,11 +79,11 @@ dataReducer action state = case action of
             ({state | data = {data | entries = entries, status = DEFAULT}}, [updateMaterial])
     REMOVE_ENTRY id -> (state, [removeEntry id])
 
-entryReducer : ModifyAction -> UiState -> Entry
-entryReducer action {newEntry} = case action of
-    CHANGE_NAME name -> {newEntry | name = name}
-    CHANGE_SURNAME surname -> {newEntry | surname = stringToMaybe surname}
-    CHANGE_COMPANY company -> {newEntry | company = stringToMaybe company}
-    CHANGE_EMAIL email -> {newEntry | email = email}
-    CHANGE_PHONE phone -> {newEntry | phone = stringToMaybe phone}
-    CHANGE_TAGS tags -> {newEntry | tags = tags}
+entryReducer : ModifyAction -> Entry -> Entry
+entryReducer action entry = case action of
+    CHANGE_NAME name -> {entry | name = name}
+    CHANGE_SURNAME surname -> {entry | surname = stringToMaybe surname}
+    CHANGE_COMPANY company -> {entry | company = stringToMaybe company}
+    CHANGE_EMAIL email -> {entry | email = email}
+    CHANGE_PHONE phone -> {entry | phone = stringToMaybe phone}
+    CHANGE_TAGS tags -> {entry | tags = tags}

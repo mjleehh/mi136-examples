@@ -2,9 +2,6 @@ module Action exposing (..)
 
 import State exposing (Entries, Tags)
 
-
-type alias CmdList = List (Cmd Action)
-
 type ModifyAction =
     CHANGE_NAME String
     | CHANGE_SURNAME String

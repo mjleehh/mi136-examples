@@ -1,13 +1,13 @@
 module Initial exposing (initialState, initialEntry)
 
 import State exposing (State, Entry, Tabs(..), Status(..))
-import Action exposing (Action, CmdList)
-import Ports exposing (updateMaterial, loadEntries)
+import Action exposing (Action)
+import Api.Entries exposing (loadEntries)
+import Api.Material exposing (updateMaterial)
 
 initialEntry : Entry
 initialEntry =
     {
-        id = Nothing,
         name = "",
         surname = Nothing,
         company = Nothing,
@@ -16,14 +16,14 @@ initialEntry =
         tags = []
     }
 
-initialState : (State, CmdList)
+initialState : (State, List (Cmd msg))
 initialState =
     ({
         ui = {
             tab = ADD_VIEW,
             search = Nothing,
             newEntry = initialEntry,
-            modifyEntry = initialEntry
+            modifyEntry = ("", initialEntry)
         },
         data = {
             status = LOADING,
@@ -33,7 +33,6 @@ initialState =
 
 sampleEntry name surname company phone email tags =
     {
-        id = Nothing,
         name = name,
         surname = Just surname,
         company = Just company,

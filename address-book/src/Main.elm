@@ -8,7 +8,8 @@ import Action exposing (Action)
 import Initial exposing (initialState)
 import Reducer exposing (reducer)
 import View exposing (render)
-import Subscriptions exposing (subscriptions)
+import Api.Entries exposing (fromEntries, updateEntries)
+import Api.Material exposing (fromNewTags, updateNewTags)
 
 
 update : Action -> State -> (State, Cmd Action)
@@ -22,6 +23,12 @@ init : () -> (State, Cmd Action)
 init _ =
     let (state, cmds) = initialState
     in (state, Cmd.batch cmds)
+
+subscriptions : State -> Sub Action
+subscriptions _ = Sub.batch [
+        fromEntries updateEntries,
+        fromNewTags updateNewTags
+    ]
 
 main = Browser.element {
         init = init,

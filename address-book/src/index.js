@@ -31,18 +31,20 @@ ports.toMaterial.subscribe((data) => {
 })
 
 
-ports.toEntries.subscribe((data) => {
+ports.toEntries.subscribe((request) => {
     const {fromEntries} = ports
     const ENTRIES_KEY = 'entries'
-    const [action, {id, entry, entries}] = data
+    const [action, {id, entry, entries}] = request
+    console.log(request)
     switch (action) {
         case "ADD": {
             const str = localStorage.getItem(ENTRIES_KEY)
             const data = JSON.parse(str) || []
-            const newEntry = {...entry, id: uuid()}
+            console.log(data)
+            const newEntry = [uuid(), entry]
             data.push(newEntry)
             localStorage.setItem(ENTRIES_KEY, JSON.stringify(data))
-            setTimeout(() => fromEntries.send(data), SIMMULATED_DELAY)
+            //setTimeout(() => fromEntries.send(data), SIMMULATED_DELAY)
             break
         }
         case "SAVE": {
@@ -52,9 +54,13 @@ ports.toEntries.subscribe((data) => {
         }
         case "REMOVE": {
             console.log('remove', id)
+            break
         }
         case "LOAD": {
             const str = localStorage.getItem(ENTRIES_KEY)
+            if (!str) {
+                fromEntries.send([])
+            }
             const data = JSON.parse(str)
             setTimeout(() => fromEntries.send(data), SIMMULATED_DELAY)
             break

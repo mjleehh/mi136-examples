@@ -3,7 +3,7 @@ module ListView exposing (renderListView)
 import Html exposing (Html, div, p, a, text, i, ul, li, button)
 import Html.Attributes exposing (class)
 import Html.Events exposing (onClick)
-import State exposing (State, Entry)
+import State exposing (State, EntryWithId)
 import Action exposing (Action(..), uiAction, uiActionWithPayload, UiAction(..), dataActionWithPayload, DataAction(..))
 import Helpers exposing (maybeToString)
 
@@ -26,28 +26,26 @@ filterList {ui, data} = case ui.search of
     Nothing -> data.entries
     Just filter -> List.filter (filterPredicate filter) data.entries
 
-filterPredicate : String -> Entry -> Bool
-filterPredicate filter entry =
+filterPredicate : String -> EntryWithId -> Bool
+filterPredicate filter entryWithId =
     let
+        (_, entry) = entryWithId
         lowerFilter = String.toLower filter
         lowerName = String.toLower entry.name
         lowerSurname = String.toLower (maybeToString entry.surname)
     in
         String.contains lowerFilter lowerName || String.contains lowerFilter lowerSurname
 
-renderEntry : Entry -> Html Action
-renderEntry entry =
+renderEntry : EntryWithId -> Html Action
+renderEntry entryWithId =
     let
+        (id, entry) = entryWithId
         name = entry.name
         surname = case entry.surname of
             Nothing -> ""
             Just s -> s
-        editAction = case entry.id of
-            Just id -> dataActionWithPayload REMOVE_ENTRY id
-            Nothing -> NONE
-        modifyAction = case entry.id of
-            Just id -> uiActionWithPayload SHOW_MODIFY id
-            Nothing -> NONE
+        editAction = dataActionWithPayload REMOVE_ENTRY id
+        modifyAction = uiActionWithPayload SHOW_MODIFY id
     in
         li [][
             div [class "collapsible-header"][text name, text " ", text surname],
