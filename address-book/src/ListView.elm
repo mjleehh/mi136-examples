@@ -4,7 +4,7 @@ import Html exposing (Html, div, p, a, text, i, ul, li, button)
 import Html.Attributes exposing (class)
 import Html.Events exposing (onClick)
 import State exposing (State, Entry)
-import Action exposing (Action, uiAction, uiActionWithArg, UiAction(..))
+import Action exposing (Action(..), uiAction, uiActionWithPayload, UiAction(..), dataActionWithPayload, DataAction(..))
 import Helpers exposing (maybeToString)
 
 
@@ -42,6 +42,12 @@ renderEntry entry =
         surname = case entry.surname of
             Nothing -> ""
             Just s -> s
+        editAction = case entry.id of
+            Just id -> dataActionWithPayload REMOVE_ENTRY id
+            Nothing -> NONE
+        modifyAction = case entry.id of
+            Just id -> uiActionWithPayload SHOW_MODIFY id
+            Nothing -> NONE
     in
         li [][
             div [class "collapsible-header"][text name, text " ", text surname],
@@ -51,7 +57,8 @@ renderEntry entry =
                 p [][text "phone", text (maybeToString entry.phone)],
                 p [][text "tags"],
                 p [][
-                    button [class "btn-large-floating"][text "remove"]
+                    button [class "btn-small", onClick modifyAction][text "modify"],
+                    button [class "btn-small", onClick editAction][text "remove"]
                 ]
             ]
         ]

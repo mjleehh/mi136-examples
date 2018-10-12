@@ -13,13 +13,14 @@ type alias Entry =
         tags: Tags
     }
 
-type Tabs = LIST_VIEW | ADD_VIEW
+type Tabs = LIST_VIEW | ADD_VIEW | MODIFY_VIEW
 
 type alias UiState =
     {
         tab: Tabs,
         search: Maybe String,
-        newEntry: Entry
+        newEntry: Entry,
+        modifyEntry: Entry
     }
 
 type alias Entries = List Entry

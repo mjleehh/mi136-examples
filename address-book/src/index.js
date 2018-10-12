@@ -34,7 +34,7 @@ ports.toMaterial.subscribe((data) => {
 ports.toEntries.subscribe((data) => {
     const {fromEntries} = ports
     const ENTRIES_KEY = 'entries'
-    const [action, {entry, entries}] = data
+    const [action, {id, entry, entries}] = data
     switch (action) {
         case "ADD": {
             const str = localStorage.getItem(ENTRIES_KEY)
@@ -49,6 +49,9 @@ ports.toEntries.subscribe((data) => {
             localStorage.setItem(ENTRIES_KEY, JSON.stringify(entries))
             fromEntries.send(entries)
             break
+        }
+        case "REMOVE": {
+            console.log('remove', id)
         }
         case "LOAD": {
             const str = localStorage.getItem(ENTRIES_KEY)

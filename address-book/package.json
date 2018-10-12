@@ -4,7 +4,7 @@
   "description": "Web app skeleton for PM102 class.",
   "scripts": {
     "build": "npx webpack --mode production",
-    "start": "npx webpack-dev-server --mode development --open",
+    "start": "npx webpack-dev-server --mode development",
     "deploy": "gcloud app deploy --project `cat project_name`"
   },
   "author": "Michael Jonathan Lee",

@@ -22,7 +22,8 @@ initialState =
         ui = {
             tab = ADD_VIEW,
             search = Nothing,
-            newEntry = initialEntry
+            newEntry = initialEntry,
+            modifyEntry = initialEntry
         },
         data = {
             status = LOADING,
