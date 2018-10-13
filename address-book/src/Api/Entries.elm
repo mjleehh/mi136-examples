@@ -1,4 +1,4 @@
-port module Api.Entries exposing (loadEntries, addEntry, removeEntry, fromEntries, updateEntries)
+port module Api.Entries exposing (loadEntries, addEntry, removeEntry, fromEntries, updateEntry, entriesUpdated)
 
 import State exposing (Entry, EntryWithId, Entries)
 import Action exposing (Action(..), dataActionWithPayload, DataAction(..))
@@ -17,17 +17,10 @@ sendCommand : String -> RequestData -> Cmd msg
 sendCommand cmd data = toEntries (cmd, data)
 
 loadEntries : Cmd msg
-loadEntries = sendCommand "LOAD" {
+loadEntries = sendCommand "LIST" {
         id = Nothing,
         entry = Nothing,
         entries = Nothing
-    }
-
-saveEntries : Entries -> Cmd msg
-saveEntries entries = sendCommand "SAVE" {
-        id = Nothing,
-        entry = Nothing,
-        entries = Just entries
     }
 
 
@@ -54,8 +47,8 @@ removeEntry id = sendCommand "REMOVE" {
 
 -- Sub
 
-updateEntries : Maybe Entries -> Action
-updateEntries payload = case payload of
+entriesUpdated : Maybe Entries -> Action
+entriesUpdated payload = case payload of
     Just entries -> dataActionWithPayload UPDATE_ENTRIES entries
     Nothing -> NONE
 

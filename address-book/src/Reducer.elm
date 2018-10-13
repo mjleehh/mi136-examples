@@ -5,7 +5,7 @@ import Action exposing (..)
 import State exposing (..)
 import Helpers exposing (stringToMaybe)
 import Initial exposing (initialEntry)
-import Api.Entries exposing (addEntry, removeEntry)
+import Api.Entries exposing (addEntry, updateEntry, removeEntry)
 import Api.Material exposing (updateMaterial)
 
 
@@ -71,7 +71,7 @@ dataReducer action state = case action of
             newData = {data | status = STORING}
             newUi = {ui | tab = LIST_VIEW}
         in
-            ({state | ui = newUi, data = newData}, [addEntry ui.newEntry])
+            ({state | ui = newUi, data = newData}, [updateEntry ui.modifyEntry])
     UPDATE_ENTRIES entries ->
         let
             {data} = state

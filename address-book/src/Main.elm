@@ -8,7 +8,7 @@ import Action exposing (Action)
 import Initial exposing (initialState)
 import Reducer exposing (reducer)
 import View exposing (render)
-import Api.Entries exposing (fromEntries, updateEntries)
+import Api.Entries exposing (fromEntries, entriesUpdated)
 import Api.Material exposing (fromNewTags, updateNewTags)
 
 
@@ -26,7 +26,7 @@ init _ =
 
 subscriptions : State -> Sub Action
 subscriptions _ = Sub.batch [
-        fromEntries updateEntries,
+        fromEntries entriesUpdated,
         fromNewTags updateNewTags
     ]
 

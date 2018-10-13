@@ -1,7 +1,6 @@
 import {Elm} from './Main.elm'
-import uuid from 'uuid/v4'
+import AddressStore from './storage'
 
-const SIMMULATED_DELAY = 0
 
 const app = Elm.App.init({node: document.getElementById('main')})
 
@@ -30,40 +29,41 @@ ports.toMaterial.subscribe((data) => {
     requestAnimationFrame(() => updateCollapsibles())
 })
 
+const store = new AddressStore()
 
-ports.toEntries.subscribe((request) => {
+ports.toEntries.subscribe(async (request) => {
+    async function listWithoutIds() {
+        const addresses = await store.list()
+        return addresses.map(({id, ...item}) => [id, item])
+    }
+
     const {fromEntries} = ports
     const ENTRIES_KEY = 'entries'
     const [action, {id, entry, entries}] = request
-    console.log(request)
     switch (action) {
-        case "ADD": {
-            const str = localStorage.getItem(ENTRIES_KEY)
-            const data = JSON.parse(str) || []
-            console.log(data)
-            const newEntry = [uuid(), entry]
-            data.push(newEntry)
-            localStorage.setItem(ENTRIES_KEY, JSON.stringify(data))
-            //setTimeout(() => fromEntries.send(data), SIMMULATED_DELAY)
+        case "LIST": {
+            const addresses = await listWithoutIds()
+            fromEntries.send(addresses)
             break
         }
-        case "SAVE": {
-            localStorage.setItem(ENTRIES_KEY, JSON.stringify(entries))
-            fromEntries.send(entries)
+        case "ADD": {
+            await store.add(entry)
+            const addresses = await listWithoutIds()
+            fromEntries.send(addresses)
+            break
+        }
+        case "UPDATE": {
+            await store.update(id, entry)
+            const addresses = await listWithoutIds()
+            fromEntries.send(addresses)
             break
         }
         case "REMOVE": {
-            console.log('remove', id)
+            await store.remove(id)
+            const addresses = await listWithoutIds()
+            fromEntries.send(addresses)
             break
         }
-        case "LOAD": {
-            const str = localStorage.getItem(ENTRIES_KEY)
-            if (!str) {
-                fromEntries.send([])
-            }
-            const data = JSON.parse(str)
-            setTimeout(() => fromEntries.send(data), SIMMULATED_DELAY)
-            break
-        }
+
     }
 })

@@ -8,14 +8,15 @@ import State exposing (State, Tabs(..), Status(..), UiState)
 import Action exposing (Action, dataAction, DataAction(..), addActionWithPayload, modifyActionWithPayload, uiAction, UiAction(..))
 import SearchView exposing (renderSearchView)
 import ListView exposing (renderListView)
-import ModifyEntry exposing (renderModifyEntry)
+import RenderModifyView exposing (renderModifyView)
+import AddView exposing (renderAddView)
 
 
 render : State -> Html Action
 render state =
     div[class "row"][
         renderHeader state,
-        div[class "row container"][
+        div[class "container"][
             renderBody state
         ]
     ]
@@ -36,21 +37,13 @@ renderHeader state =
             ]
         ]
 
-renderAddView : State -> Html Action
-renderAddView {ui} =
-    renderModifyEntry "Add" addActionWithPayload (dataAction ADD_ENTRY) ui
-
-renderModifyView : State -> Html Action
-renderModifyView {ui} =
-    renderModifyEntry "Modify" modifyActionWithPayload (dataAction MODIFY_ENTRY) ui
-
 
 renderBody state = if state.data.status == DEFAULT
     then
         case state.ui.tab of
             LIST_VIEW -> renderListView state
-            ADD_VIEW -> renderAddView state
-            MODIFY_VIEW -> renderModifyView state
+            ADD_VIEW -> renderAddView state.ui
+            MODIFY_VIEW -> renderModifyView state.ui
     else
         p [class "center"][
             div [class "preloader-wrapper big active"][

@@ -1,8 +1,10 @@
-module ValidateEntry exposing (validateEntry)
+module ValidateEntry exposing (validateEntry, renderValidationErrors)
 
 import Regex exposing (Regex)
+import Html exposing (Html, text)
 
 import State exposing (Entry)
+import Action exposing (Action)
 import Validate exposing (Validator, ifBlank, ifInvalidEmail, fromErrors)
 
 validPhoneNumber : Regex
@@ -36,3 +38,7 @@ validateEntry = Validate.firstError [
         ifInvalidEmail .email (\email -> "email " ++ email ++ " is invalid"),
         ifInvalidPhoneNumber .phone "the phone number you have entered is invalid"
     ]
+
+renderValidationErrors : List String -> List (Html Action)
+renderValidationErrors validationErrors =
+    List.map (\elem -> text elem) validationErrors
