@@ -20,7 +20,7 @@ initialState : (State, List (Cmd msg))
 initialState =
     ({
         ui = {
-            tab = ADD_VIEW,
+            tab = LIST_VIEW,
             search = Nothing,
             newEntry = initialEntry,
             modifyEntry = ("", initialEntry)
