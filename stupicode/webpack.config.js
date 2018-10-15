@@ -9,7 +9,7 @@ const OUTPUT_DIR = 'dist'
 
 module.exports = (env, argv) => {
     // determin wheither do display the time travelling elm debugger
-    const elmArgs = argv.mode === 'production' ?
+    const elmArgs = true ? //argv.mode === 'production' ?
         'verbose=true&warn=false' :
         'verbose=true&warn=false&debug=true'
 

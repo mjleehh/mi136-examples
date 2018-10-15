@@ -1,7 +1,25 @@
-.activeState {
+.activestate {
   background: red;
 }
 
-.inactiveState {
-  background: lightblue;
+.app-name {
+  margin-left: 1em;
+}
+
+.app {
+  display: flex;
+  min-height: 100vh;
+  flex-direction: column;
+}
+
+main {
+  flex: 1 0 auto;
+}
+
+.inactiveinput {
+  display: none;
+}
+
+.modelview {
+  width: 16em;
 }

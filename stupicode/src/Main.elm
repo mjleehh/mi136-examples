@@ -1,12 +1,16 @@
 module App exposing (main)
 
 import Array exposing (Array)
-import Html exposing (Attribute, Html, p, text, button)
-import Html.Attributes exposing (class)
-import Html.Events exposing (onClick)
+import Html exposing (Attribute, Html, p, text, button, span, div, nav, main_, footer, ul, li, input)
+import Html.Attributes exposing (class, value)
+import Html.Events exposing (onClick, onInput)
 import Browser
 
 import Debug exposing (log)
+
+import Bitwise
+
+-- model
 
 type alias Model = {
         state: State,
@@ -38,12 +42,6 @@ init = {
         prev = initModel
     }
 
-stringToUnicodeList str =
-    str |> String.toList |> List.map Char.toCode |> Array.fromList
-
-
-type Action = STEP | UPDATE_INPUT | NONE
-
 type State =
     START
     | INIT_POS
@@ -54,6 +52,15 @@ type State =
     | NEXT_BYTE
     | INCR_POS
     | END
+
+-- actions
+
+type Action = STEP | UPDATE_INPUT String | NONE
+
+-- udpate
+
+stringToUnicodeList str =
+    str |> String.toList |> List.map Char.toCode |> Array.fromList
 
 nextState : Model -> Model
 nextState model = case model.state of
@@ -92,46 +99,127 @@ nextState model = case model.state of
 update : Action -> ModelWrapper -> ModelWrapper
 update action wrapper = case action of
     STEP -> {model = nextState wrapper.model, prev = wrapper.model}
-    UPDATE_INPUT -> wrapper
+    UPDATE_INPUT s ->
+        let
+            {model} = wrapper
+            newModel = {model | input = s}
+        in
+            {wrapper | model = newModel}
     NONE -> wrapper
 
-isActiveStyle : State -> Model -> Attribute Action
-isActiveStyle state model = if state == model.state
-    then class "activeState"
-    else class "inactiveState"
-
-ifActive : State -> Model -> String -> Html Action -> Html Action
-ifActive state model title ifTrue =
-    let
-        body = if state == model.state
-            then ifTrue
-            else text ""
-    in
-        p [isActiveStyle state model][
-            p [][text title],
-            p [][body]
-        ]
+-- view
 
 view : ModelWrapper -> Html Action
 view wrapper =
+    div [class "app"][
+        nav [][
+           div [class "nav-wrapper"][
+                div [class "brand-logo app-name"][text "Stupicode"],
+                ul [class "right"][
+                    li [][button [class "btn", onClick STEP][text "next"]],
+                    li [][button [class "btn"][text "autoplay"]]
+                ]
+           ]
+        ],
+        main_ [class "container"][
+            div[][
+                renderInput wrapper.model,
+                renderModel wrapper.model,
+                renderBytes wrapper.model.bytes,
+                renderStates wrapper
+            ]
+        ],
+        footer [class "page-footer"][
+            div [][text "© Michael Jonathan Lee"]
+        ]
+    ]
+
+renderInput : Model -> Html Action
+renderInput model = if model.state == GET_INPUT
+    then
+        div [][
+            div [class "input-field"][
+                input [value model.input, onInput UPDATE_INPUT][]
+            ]
+        ]
+    else
+        div [][]
+
+renderInt : Int -> Html Action
+renderInt n =
+    text (String.fromInt n)
+
+renderModel : Model -> Html Action
+renderModel model = div [][
+        ul [class "collection with-header modelview"][
+            li [class "collection-item"][
+                span [class "badge"][text model.input],
+                span [][text "input:"]
+            ],
+            li [class "collection-item"][
+                span [class "badge"][renderInt model.pos],
+                span [][text "n:"]
+            ],
+            li [class "collection-item"][
+                span [class "badge"][renderInt model.rest],
+                span [][text "rest:"]
+            ]
+        ]
+    ]
+
+renderStates : ModelWrapper -> Html Action
+renderStates wrapper =
     let
         {model, prev} = wrapper
+        renderState state caption =
+            let
+                cardClass = if state == model.state
+                    then class "card col s3 activestate"
+                    else class "card col s3"
+            in
+                div [cardClass][
+                    div [class "card-content"][text caption],
+                    div [class "card-action"][text "bar"]
+                ]
     in
-        p [][
-            p [isActiveStyle START prev][text "start"],
-            p [isActiveStyle GET_INPUT prev][text "get input"],
-            p [isActiveStyle INIT_POS prev][text "init pos"],
-            p [isActiveStyle IF_NOT_AT_END prev][
-                text "if not at end ",
-                text (String.fromInt prev.pos)
-            ],
-            p [isActiveStyle SET_CHAR prev][text "set char"],
-            p [isActiveStyle FIRST_BYTE prev][text "first byte"],
-            p [isActiveStyle NEXT_BYTE prev][text "next byte"],
-            ifActive INCR_POS prev "increment pos" (text ((String.fromInt prev.pos) ++ "->" ++ (String.fromInt model.pos))),
-            p [isActiveStyle END prev][text "end"],
-            button [onClick STEP][text "step"]
+        div [class "row"][
+            renderState START "start",
+            renderState GET_INPUT "S := input",
+            renderState INIT_POS "n := 0",
+            renderState IF_NOT_AT_END "if n < len(S)",
+            renderState SET_CHAR "s := S[n]",
+            renderState FIRST_BYTE "first byte",
+            renderState NEXT_BYTE "subsequent byte",
+            renderState INCR_POS "n := n + 1",
+            renderState END "end"
         ]
+
+
+-- due to a bug in Bitwise.and we have to workaround
+getBits : List Int -> Int -> List Int
+getBits bits byte =
+    if List.length bits < 8
+    then
+        let
+            mask = Bitwise.shiftLeftBy (7 - List.length bits) 1
+            newByte = remainderBy mask byte
+            value = byte // mask
+        in
+            getBits (bits ++ [value]) newByte
+    else
+        bits
+
+renderByte : Int -> Html Action
+renderByte byte =
+    let
+        bits =getBits [] byte
+    in
+        div [] (List.map (\bit -> span [][text (String.fromInt bit)]) bits)
+
+renderBytes : List Int -> Html Action
+renderBytes bytes = div [] (List.map renderByte bytes)
+
+-- main
 
 main = Browser.sandbox {
         init = init,
