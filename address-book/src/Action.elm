@@ -8,7 +8,6 @@ type ModifyAction =
     | CHANGE_COMPANY String
     | CHANGE_EMAIL String
     | CHANGE_PHONE String
-    | CHANGE_TAGS Tags
 
 type UiAction =
     SHOW_ADD
@@ -30,6 +29,7 @@ uiActionWithPayload actionType payload = UI (actionType payload)
 
 type DataAction =
     ADD_ENTRY
+    | CHANGE_TAGS (String, Tags)
     | MODIFY_ENTRY
     | UPDATE_ENTRIES Entries
     | REMOVE_ENTRY String

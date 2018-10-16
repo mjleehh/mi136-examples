@@ -1,7 +1,7 @@
-port module Api.Material exposing (updateMaterial, fromNewTags, updateNewTags)
+port module Api.Material exposing (updateMaterial, tagsSubscription)
 
 import State exposing (Tags)
-import Action exposing (Action, addActionWithPayload, ModifyAction(..))
+import Action exposing (Action, dataActionWithPayload, DataAction(..))
 
 -- Cmd
 
@@ -10,10 +10,14 @@ updateMaterial = toMaterial ()
 
 -- Sub
 
-updateNewTags : Tags -> Action
-updateNewTags payload = addActionWithPayload CHANGE_TAGS payload
+updateTags : (String, Tags) -> Action
+updateTags payload = dataActionWithPayload CHANGE_TAGS payload
 
 -- ports
 
 port toMaterial : () -> Cmd msg
-port fromNewTags : (Tags -> msg) -> Sub msg
+port fromTags : ((String, Tags) -> msg) -> Sub msg
+
+-- subs
+
+tagsSubscription = fromTags updateTags

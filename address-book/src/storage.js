@@ -38,6 +38,7 @@ export default class AddressStore {
     }
 
     async update(id, item) {
+        console.log(item)
         const db = await this.db
         const tx = db.transaction(ADDRESS_STORE_NAME, 'readwrite')
         const store = tx.objectStore(ADDRESS_STORE_NAME)

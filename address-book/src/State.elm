@@ -18,6 +18,7 @@ type Tabs = LIST_VIEW | ADD_VIEW | MODIFY_VIEW
 
 type alias UiState =
     {
+        activeListItem: Maybe String,
         tab: Tabs,
         search: Maybe String,
         newEntry: Entry,

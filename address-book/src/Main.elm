@@ -8,8 +8,8 @@ import Action exposing (Action)
 import Initial exposing (initialState)
 import Reducer exposing (reducer)
 import View exposing (render)
-import Api.Entries exposing (fromEntries, entriesUpdated)
-import Api.Material exposing (fromNewTags, updateNewTags)
+import Api.Entries exposing (entrySubscriptions)
+import Api.Material exposing (tagsSubscription)
 
 
 update : Action -> State -> (State, Cmd Action)
@@ -26,8 +26,8 @@ init _ =
 
 subscriptions : State -> Sub Action
 subscriptions _ = Sub.batch [
-        fromEntries entriesUpdated,
-        fromNewTags updateNewTags
+        entrySubscriptions,
+        tagsSubscription
     ]
 
 main = Browser.element {

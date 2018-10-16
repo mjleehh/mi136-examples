@@ -1,0 +1,16 @@
+@import "~materialize-css/sass/materialize";
+
+.edit-button {
+  @extend .btn;
+  @extend .blue;
+  margin-right: 12pt;
+}
+
+.edit-button-container {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.list-label {
+  width: 5em;
+}

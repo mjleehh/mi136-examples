@@ -39,11 +39,9 @@ uiReducer action {ui, data} = case action of
                 Just entry ->
                     noCmd {ui | tab = MODIFY_VIEW, modifyEntry = entry}
                 Nothing -> noCmd ui
-
-
     SHOW_LIST -> ({ui | tab = LIST_VIEW}, [updateMaterial])
-    SEARCH_CHANGED value -> noCmd {ui | search = Just value}
-    RESET_SEARCH -> noCmd {ui | search = Nothing}
+    SEARCH_CHANGED value -> ({ui | search = Just value}, [updateMaterial])
+    RESET_SEARCH -> ({ui | search = Nothing},[updateMaterial])
     ADD_CHANGED add ->
         let
             newEntry = entryReducer add ui.newEntry
@@ -78,6 +76,19 @@ dataReducer action state = case action of
         in
             ({state | data = {data | entries = entries, status = DEFAULT}}, [updateMaterial])
     REMOVE_ENTRY id -> (state, [removeEntry id])
+    CHANGE_TAGS (id, tags) ->
+        let
+            {data} = state
+            maybeEntry = findEntry id data.entries
+        in
+            case maybeEntry of
+                Just (_, entry) ->
+                    let
+                        newEntry = (id, {entry | tags = tags})
+                    in
+                        (state, [updateEntry newEntry])
+                Nothing -> noCmd state
+
 
 entryReducer : ModifyAction -> Entry -> Entry
 entryReducer action entry = case action of
@@ -86,4 +97,4 @@ entryReducer action entry = case action of
     CHANGE_COMPANY company -> {entry | company = stringToMaybe company}
     CHANGE_EMAIL email -> {entry | email = email}
     CHANGE_PHONE phone -> {entry | phone = stringToMaybe phone}
-    CHANGE_TAGS tags -> {entry | tags = tags}
+

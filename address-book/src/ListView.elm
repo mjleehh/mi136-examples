@@ -1,12 +1,12 @@
 module ListView exposing (renderListView)
 
-import Html exposing (Html, div, p, a, text, i, ul, li, button)
-import Html.Attributes exposing (class)
+import Html exposing (Html, div, p, a, text, i, ul, li, button, span)
+import Html.Attributes exposing (class, attribute)
 import Html.Events exposing (onClick)
-import State exposing (State, EntryWithId)
+import State exposing (Tags, State, EntryWithId)
 import Action exposing (Action(..), uiAction, uiActionWithPayload, UiAction(..), dataActionWithPayload, DataAction(..))
 import Helpers exposing (maybeToString)
-
+import Json.Encode
 
 renderListView : State -> Html Action
 renderListView state =
@@ -34,7 +34,19 @@ filterPredicate filter entryWithId =
         lowerName = String.toLower entry.name
         lowerSurname = String.toLower (maybeToString entry.surname)
     in
-        String.contains lowerFilter lowerName || String.contains lowerFilter lowerSurname
+        String.contains lowerFilter lowerName
+        || String.contains lowerFilter lowerSurname
+        || List.any (String.contains lowerFilter) entry.tags
+
+tagsToJson : Tags -> String
+tagsToJson tags = Json.Encode.list Json.Encode.string tags |> Json.Encode.encode 0
+
+renderValue label value = if value /= ""
+    then p [][
+            span [class "list-label"][text label],
+            span [][text value]
+        ]
+     else text ""
 
 renderEntry : EntryWithId -> Html Action
 renderEntry entryWithId =
@@ -46,17 +58,22 @@ renderEntry entryWithId =
             Just s -> s
         editAction = dataActionWithPayload REMOVE_ENTRY id
         modifyAction = uiActionWithPayload SHOW_MODIFY id
+        tags = tagsToJson entry.tags
     in
         li [][
             div [class "collapsible-header"][text name, text " ", text surname],
             div [class "collapsible-body"][
-                p [][text "company: ", text (maybeToString entry.company)],
-                p [][text "email", text entry.email],
-                p [][text "phone", text (maybeToString entry.phone)],
-                p [][text "tags"],
-                p [][
-                    button [class "btn-small", onClick modifyAction][text "modify"],
-                    button [class "btn-small", onClick editAction][text "remove"]
+                renderValue "company " (maybeToString entry.company),
+                renderValue "email:" entry.email,
+                renderValue "phone:" (maybeToString entry.phone),
+                p [
+                    class "chips entry-tags",
+                    attribute "contact-id" id,
+                    attribute "contact-tags" tags
+                ][],
+                p [class "edit-button-container"][
+                    button [class "edit-button", onClick modifyAction][text "modify"],
+                    button [class "edit-button", onClick editAction][text "remove"]
                 ]
             ]
         ]

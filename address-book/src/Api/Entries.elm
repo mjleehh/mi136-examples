@@ -1,4 +1,4 @@
-port module Api.Entries exposing (loadEntries, addEntry, removeEntry, fromEntries, updateEntry, entriesUpdated)
+port module Api.Entries exposing (loadEntries, addEntry, removeEntry, updateEntry, entrySubscriptions)
 
 import State exposing (Entry, EntryWithId, Entries)
 import Action exposing (Action(..), dataActionWithPayload, DataAction(..))
@@ -51,6 +51,8 @@ entriesUpdated : Maybe Entries -> Action
 entriesUpdated payload = case payload of
     Just entries -> dataActionWithPayload UPDATE_ENTRIES entries
     Nothing -> NONE
+
+entrySubscriptions = fromEntries entriesUpdated
 
 -- ports
 

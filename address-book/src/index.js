@@ -1,6 +1,8 @@
 import {Elm} from './Main.elm'
 import AddressStore from './storage'
+import Material from 'materialize-css'
 
+import "./style.scss"
 
 const app = Elm.App.init({node: document.getElementById('main')})
 
@@ -9,23 +11,33 @@ const {ports} = app
 const updateCollapsibles = () => {
     const accordion = true
     const collapsables = document.querySelectorAll('.collapsible')
-    M.Collapsible.init(collapsables, {accordion})
+    Material.Collapsible.init(collapsables, {
+        accordion
+    })
 
-    function updateNewTags(chips) {
-        const chipValues = M.Chips.getInstance(chips[0])
+    function updateNewTags(list) {
+        const chips = list[0]
+        const contactId = chips.getAttribute('contact-id')
+        const chipValues = Material.Chips.getInstance(chips)
             .getData()
             .map(({tag}) => tag)
-        ports.fromNewTags.send(chipValues)
+        ports.fromTags.send([contactId, chipValues])
     }
-    const chips = document.querySelectorAll('.add-entry-tags')
-    M.Chips.init(chips, {
-        placeholder: 'tags',
-        onChipAdd: updateNewTags,
-        onChipDelete: updateNewTags,
-    })
+
+    const list = document.querySelectorAll('.entry-tags')
+    for (let chip of list) {
+        const data = JSON.parse(chip.getAttribute('contact-tags')).map(item => ({tag: item}))
+        Material.Chips.init(chip, {
+            data,
+            placeholder: 'tags',
+            onChipAdd: updateNewTags,
+            onChipDelete: updateNewTags,
+        })
+    }
 }
 
 ports.toMaterial.subscribe((data) => {
+    // wait until elm render is done
     requestAnimationFrame(() => updateCollapsibles())
 })
 
@@ -38,7 +50,6 @@ ports.toEntries.subscribe(async (request) => {
     }
 
     const {fromEntries} = ports
-    const ENTRIES_KEY = 'entries'
     const [action, {id, entry, entries}] = request
     switch (action) {
         case "LIST": {
@@ -64,6 +75,5 @@ ports.toEntries.subscribe(async (request) => {
             fromEntries.send(addresses)
             break
         }
-
     }
 })
