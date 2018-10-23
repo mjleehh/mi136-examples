@@ -4,70 +4,34 @@ import Html exposing (Html, label, div, text, button, input)
 import Html.Attributes exposing (type_, value)
 import Html.Events exposing (onClick, onInput)
 import Browser
-
-process : String -> Float -> (Float, String, Float)
-process function x = (0, "", 0)
-
-
-type Action = FUNCTION_CHANGED String | X_CHANGED String | PROCESS
+import Debug exposing (log)
+import Tokenize exposing (tokenize)
+import Blocks exposing (parse)
 
 type alias State =
     {
         f: String,
-        x: Float,
-        f_y: Maybe Float,
-        df: Maybe String,
-        df_y: Maybe Float
+        x: Float
     }
-
 
 init = {
         f = "",
-        x = 0,
-        f_y = Nothing,
-        df = Nothing,
-        df_y = Nothing
+        x = 0
     }
 
+type Action = UPDATE_F String
+
+
 update action state = case action of
-    FUNCTION_CHANGED value -> {state | f = value, f_y = Nothing, df = Nothing, df_y = Nothing}
-    X_CHANGED value -> state
-    PROCESS ->
+    UPDATE_F str ->
         let
-            (f_y, df, df_y) = process state.f state.x
+            a = log "parse" <| parse <| tokenize str
         in
-            {state | f_y = Just f_y, df = Just df, df_y = Just df_y}
+            {state | f = ""}
 
-    printStringMaybe maybe = case maybe of
-        Just value -> text value
-        Nothing -> text " "
-
-    printFloatMaybe maybe = case maybe of
-        Just value -> text (String.fromFloat value)
-        Nothing -> text " "view state =
-    let
-        printStringMaybe maybe = case maybe of
-            Just value -> text value
-            Nothing -> text " "
-
-        printFloatMaybe maybe = case maybe of
-            Just value -> text (String.fromFloat value)
-            Nothing -> text " "
-    in
-        div [][
-            div [][
-                label [][text "function"],
-                input [type_ "text", onInput FUNCTION_CHANGED, value state.f][]
-            ],
-            div [][
-                label [][text "x"],
-                input [type_ "number", onInput X_CHANGED][]
-            ],
-            div [][button [][text "process"]],
-            div [][printFloatMaybe state.f_y],
-            div [][printStringMaybe state.df],
-            div [][printFloatMaybe state.df_y]
-        ]
+view state = div [][
+        input [onInput UPDATE_F][]
+    ]
 
 main = Browser.sandbox {
         init = init,
