@@ -1,7 +1,9 @@
-module Tokenize exposing (tokenize, Token(..), BlockDelimiter)
+module Tokenize exposing (tokenize, Token(..), BlockDelimiter, Operator(..))
 
 import Debug exposing (log)
 import Maybe exposing (withDefault)
+import Helpers exposing (push)
+import Grammar exposing (Function(..))
 
 type Token =
     NUMBER Float
@@ -9,23 +11,18 @@ type Token =
     | OPEN BlockDelimiter
     | CLOSE BlockDelimiter
     | X
-    | FUNC Function
+    | FUNCTION Function
     | NULL_TOKEN
 
 type Operator =
     PLUS
     | MINUS
     | TIMES
-    | DIV
-    | MOD
-    | POW
+    | DIVISION
+    | MODULO
+    | POWER
 
-type Function =
-    SIN
-    | COS
-    | TAN
-    | LN
-    | EXP
+
 
 type BlockDelimiter = PARENTHESES | BRACKETS | BRACES
 
@@ -34,9 +31,9 @@ getOperator c = case c of
     '+' -> Just <| OPERATOR PLUS
     '-' -> Just <| OPERATOR MINUS
     '*' -> Just <| OPERATOR TIMES
-    '/' -> Just <| OPERATOR DIV
-    '%' -> Just <| OPERATOR MOD
-    '^' -> Just <| OPERATOR POW
+    '/' -> Just <| OPERATOR DIVISION
+    '%' -> Just <| OPERATOR MODULO
+    '^' -> Just <| OPERATOR POWER
     _ -> Nothing
 
 getOpen : Char -> Maybe Token
@@ -58,17 +55,17 @@ feedFunction first initialRest =
         loop acc rest = case rest of
             (c :: newRest) ->
                 if Char.isAlphaNum c then
-                    loop (List.append acc [c]) newRest
+                    loop (push acc c) newRest
                 else
                     (isFunction acc, rest)
             [] -> (isFunction acc, [])
         isFunction f = case String.fromList f of
             "x" -> X
-            "sin" -> FUNC SIN
-            "cos" -> FUNC COS
-            "tan" -> FUNC TAN
-            "ln" -> FUNC LN
-            "exp" -> FUNC EXP
+            "sin" -> FUNCTION SIN
+            "cos" -> FUNCTION COS
+            "tan" -> FUNCTION TAN
+            "ln" -> FUNCTION LN
+            "exp" -> FUNCTION EXP
             _ -> NULL_TOKEN
 
 
@@ -87,15 +84,16 @@ feedNumber first initialRest =
                     if pastDot then
                         (NULL_TOKEN, newRest)
                     else
-                        loop (List.append acc ['.']) True newRest
+                        loop (push acc '.') True newRest
                 else if Char.isDigit c then
-                   loop (List.append acc [c]) pastDot newRest
+                   loop (push acc c) pastDot newRest
                 else
                    (tokenFromNumbers acc, rest)
             [] -> (tokenFromNumbers acc, [])
     in
         loop [first] (first == '.') initialRest
 
+tokenize : String -> List Token
 tokenize str =
     let
         feedSpaces rest = case rest of
@@ -136,4 +134,4 @@ tokenize str =
                             feedNext func pastFunc
             [] -> []
     in
-        log "loop" <| loop <| String.toList str
+        loop <| String.toList str
