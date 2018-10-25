@@ -2,6 +2,7 @@ module Evaluate exposing (evaluate)
 
 import Grammar exposing (..)
 
+evaluate : Float -> Sum -> Float
 evaluate x sum =
     let
         sumFold : SumOperation -> Float -> Float
@@ -27,7 +28,7 @@ evalPow x pow =
     let
         powFold : PowOperation -> Float -> Float
         powFold val acc = case val of
-            FIRST_POW func -> evalFunc x func
+            FIRST_POW func -> (evalFunc x func)^acc
             POW func -> (evalFunc x func)^acc
     in
         List.foldr powFold 1 pow

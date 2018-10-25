@@ -11,6 +11,7 @@ import Blockify exposing (blockify)
 import Parse exposing (parse)
 import Evaluate exposing (evaluate)
 import Grammar exposing (Sum)
+import Render exposing (render)
 
 
 type alias State =
@@ -48,15 +49,21 @@ update action state = case action of
             {state | f = f}
 
 view state =
-    div [][
+    let
+        f = case state.f of
+                Ok func -> render func
+                Err err -> err
+    in
         div [][
-            input [onInput UPDATE_F][]
-        ],
-        div [][
-            input [type_ "number", onInput UPDATE_X][]
-        ],
-        div [][text <| String.fromFloat <| withDefault 0 <| state.f_y]
-    ]
+            div [][
+                input [onInput UPDATE_F][]
+            ],
+            div [][
+                input [type_ "number", onInput UPDATE_X][]
+            ],
+            div [][text <| String.fromFloat <| withDefault 0 <| state.f_y],
+            div [][text <| f]
+        ]
 
 main = Browser.sandbox {
         init = init,
