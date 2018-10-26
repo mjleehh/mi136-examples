@@ -5,9 +5,10 @@ import Grammar exposing (..)
 import Debug exposing (log)
 
 import Render exposing (render)
+import Evaluate exposing (evalFunc)
 
 differentiate : Sum -> Sum
-differentiate sum =
+differentiate sum = log "d" <|
     let
         diffTerm : SumOperation -> Sum
         diffTerm val = case val of
@@ -72,10 +73,69 @@ diffMult mult =
     in
         res
 
+{-
+    consider a^b with:
+    - a ist constant
+
+    (a^b)' = ln a * a^b * b'
+
+    - b is constant
+    (a^b)' = b * a^(b-1) * a'
+
+    - a = x, b ist constant
+    (x^n) = n x^(n-1)
+
+    - general case:
+    (a^b)' = a^b * (ln a b' + b/a a')
+
+-}
 diffPow : Pow -> SumOperation
 diffPow pow = case pow of
-    (powTerm :: _) -> diffFunc powTerm
-    _ -> POS [MUL [ID (NUM 32)]]
+    -- single value cases
+    [ID (NUM _)] -> POS [MUL [ID <| NUM 0]]
+    [ID VAR] -> POS [MUL [ID <| NUM 1]]
+    [FUNC f arg] -> POS [MUL [ID <| SUM <| [diffFunc <| FUNC f arg]]]
+    -- special cases
+    [ID (SUM sum)] -> POS [MUL [ID <| SUM <| differentiate sum]]
+    [ID VAR, ID (NUM n)] ->
+        if n /= 0 then
+            POS [
+                MUL [ID (NUM n)],
+                MUL [ID VAR, ID (NUM (n - 1))]
+            ]
+        else
+            POS [MUL [ID (NUM 0)]]
+
+    [ID (NUM a), FUNC b arg] ->
+        POS [
+            MUL [ID <| NUM <| logBase e a],
+            MUL [ID <| NUM a, FUNC b arg],
+            MUL [ID <| SUM [diffFunc <| FUNC b arg]]
+        ]
+    [FUNC a arg, ID (NUM n)] ->
+        POS [
+            MUL [ID (NUM n)],
+            MUL [FUNC a arg, ID <| NUM (n-1)],
+            MUL [ID <| SUM [diffFunc <| FUNC a arg]]
+        ]
+    -- general case
+    [a, b] -> generalDiffPower a <| POS [MUL [b]]
+    -- general case with more than one exponent level
+    a :: rest -> generalDiffPower a <| diffPow rest
+    -- shouldn't happen, too lazy to handle in error
+    [] -> POS [MUL [ID (NUM 42)]]
+
+generalDiffPower : Func -> SumOperation -> SumOperation
+generalDiffPower a b =
+    let
+        aPowB = MUL [a, ID <| SUM [b]]
+        da = diffFunc a
+        db = differentiate [b]
+        fstSumTerm = [MUL [ID <| SUM db], MUL [FUNC LN <| SUM [da]]]
+        sndSumTerm = [MUL [ID <| SUM [da]], MUL [ID <| SUM [b]], DIV [a]]
+        sum = [POS fstSumTerm, POS sndSumTerm]
+    in
+        POS [aPowB, MUL [ID <| SUM sum]]
 
 diffFunc : Func -> SumOperation
 diffFunc func = case func of
@@ -99,6 +159,6 @@ diffFunc func = case func of
 
 diffAtomic : AtomicTerm -> AtomicTerm
 diffAtomic atomic = case atomic of
-    SUM sum -> SUM sum -- FIXME
+    SUM sum -> SUM <| differentiate sum
     NUM _ -> NUM 0
     VAR -> NUM 1

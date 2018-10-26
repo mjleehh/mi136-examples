@@ -1,4 +1,4 @@
-module Evaluate exposing (evaluate)
+module Evaluate exposing (evaluate, evalFunc)
 
 import Grammar exposing (..)
 

@@ -5,6 +5,7 @@ import Tokenize exposing (Token(..), Operator(..))
 import Blockify exposing (Block(..))
 import Helpers exposing (push)
 
+import Debug exposing (log)
 
 parse : List Block -> Result String Sum
 parse expList =
