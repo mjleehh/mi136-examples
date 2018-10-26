@@ -17,7 +17,6 @@ evalMult x mult =
     let
         multFold : MultOperation -> Float -> Float
         multFold val acc = case val of
-            FIRST_MULT pow -> evalPow x pow
             MUL pow -> acc * evalPow x pow
             DIV pow -> acc / evalPow x pow
     in
@@ -26,10 +25,8 @@ evalMult x mult =
 evalPow : Float -> Pow -> Float
 evalPow x pow =
     let
-        powFold : PowOperation -> Float -> Float
-        powFold val acc = case val of
-            FIRST_POW func -> (evalFunc x func)^acc
-            POW func -> (evalFunc x func)^acc
+        powFold : Func -> Float -> Float
+        powFold func acc = (evalFunc x func)^acc
     in
         List.foldr powFold 1 pow
 

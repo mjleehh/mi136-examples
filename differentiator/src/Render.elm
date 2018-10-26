@@ -25,8 +25,11 @@ renderMult mult =
     let
         multFold : MultOperation -> String -> String
         multFold val acc = case val of
-            FIRST_MULT pow -> renderPow pow
-            MUL pow -> acc ++ " * " ++ renderPow pow
+            MUL pow ->
+                if acc == "" then
+                    renderPow pow
+                else
+                    acc ++ " * " ++ renderPow pow
             DIV pow -> acc ++ " / " ++ renderPow pow
     in
         List.foldl multFold "" mult
@@ -34,10 +37,12 @@ renderMult mult =
 renderPow : Pow -> String
 renderPow pow =
     let
-        powFold : PowOperation -> String -> String
-        powFold val acc = case val of
-            FIRST_POW func -> renderFunc func
-            POW func -> acc ++ "^" ++ renderFunc func
+        powFold : Func -> String -> String
+        powFold func acc =
+            if acc == "" then
+                renderFunc func
+            else
+                acc ++ "^" ++ renderFunc func
     in
         List.foldl powFold "" pow
 
@@ -60,4 +65,3 @@ renderAtomic atomic = case atomic of
     SUM sum -> "(" ++ render sum ++ ")"
     NUM num -> String.fromFloat num
     VAR -> "x"
-    

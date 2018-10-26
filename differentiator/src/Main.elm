@@ -12,7 +12,7 @@ import Parse exposing (parse)
 import Evaluate exposing (evaluate)
 import Grammar exposing (Sum)
 import Render exposing (render)
-
+import Differentiate exposing (differentiate)
 
 type alias State =
     {
@@ -42,7 +42,7 @@ update action state = case action of
     UPDATE_F str ->
         let
             tokens = tokenize str
-            f = log "f" <| case blockify tokens of
+            f = case blockify tokens of
                     Ok blocks -> parse blocks
                     Err err -> log "error blockifying" Err err
         in
@@ -53,6 +53,9 @@ view state =
         f = case state.f of
                 Ok func -> render func
                 Err err -> err
+        df = case state.f of
+                Ok func -> render <| differentiate func
+                Err err -> err
     in
         div [][
             div [][
@@ -62,7 +65,8 @@ view state =
                 input [type_ "number", onInput UPDATE_X][]
             ],
             div [][text <| String.fromFloat <| withDefault 0 <| state.f_y],
-            div [][text <| f]
+            div [][text <| f],
+            div [][text <| df]
         ]
 
 main = Browser.sandbox {

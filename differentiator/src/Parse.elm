@@ -54,7 +54,7 @@ parseMult expList =
             (exp :: newRest) -> case exp of
                 NONBLOCK (OPERATOR TIMES) -> Err "leading multiplication symbol"
                 NONBLOCK (OPERATOR DIVISION) -> Err "leading division symbol"
-                _ -> feedTerms emptyTerms FIRST_MULT rest
+                _ -> feedTerms emptyTerms MUL rest
             [] -> Err "empty sum"
 
         -- every following
@@ -85,28 +85,28 @@ parsePow expList =
         emptyTerms = []
 
         -- first term in block does note require (+/-)
-        startMult : List Block -> Result String Pow
-        startMult rest = case rest of
+        startPow : List Block -> Result String Pow
+        startPow rest = case rest of
             (exp :: newRest) -> case exp of
-                NONBLOCK (OPERATOR POWER) -> Err "leading multiplication symbol"
-                _ -> feedTerms emptyTerms FIRST_POW rest
+                NONBLOCK (OPERATOR POWER) -> Err "leading power symbol"
+                _ -> feedTerms emptyTerms rest
             [] -> Err "empty sum"
 
         -- every following
-        feedTerms : List Block -> (Func -> PowOperation) -> List Block -> Result String Pow
-        feedTerms acc operation rest = case rest of
+        feedTerms : List Block -> List Block -> Result String Pow
+        feedTerms acc rest = case rest of
             (exp :: newRest) -> case exp of
-                NONBLOCK (OPERATOR POWER) -> case feedTerms emptyTerms POW newRest of
+                NONBLOCK (OPERATOR POWER) -> case feedTerms emptyTerms newRest of
                     Ok afterTerm -> case parseFunc acc of
-                        Ok func -> Ok (operation func :: afterTerm)
+                        Ok func -> Ok (func :: afterTerm)
                         Err err -> Err err
                     Err err -> Err err
-                _ -> feedTerms (push acc exp) operation newRest
+                _ -> feedTerms (push acc exp) newRest
             [] -> case parseFunc acc of
-                Ok func -> Ok [operation func]
+                Ok func -> Ok [func]
                 Err err -> Err err
     in
-        startMult expList
+        startPow expList
 
 parseFunc : List Block -> Result String Func
 parseFunc expList = case expList of
