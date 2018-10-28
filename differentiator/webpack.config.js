@@ -6,7 +6,7 @@ const webpack = require('webpack')
 module.exports = (env, argv) => {
     const elmArgs = argv.mode === 'production' ?
         'verbose=true&warn=false' :
-        'verbose=true&warn=false&debug=true'
+        'verbose=true&warn=false'//&debug=true'
 
 
     return {entry: './src/index.js',

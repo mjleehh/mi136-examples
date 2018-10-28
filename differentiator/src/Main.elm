@@ -13,6 +13,7 @@ import Evaluate exposing (evaluate)
 import Grammar exposing (Sum)
 import Render exposing (render)
 import Differentiate exposing (differentiate)
+import Simplify exposing (simplify)
 
 type alias State =
     {
@@ -50,23 +51,40 @@ update action state = case action of
 
 view state =
     let
-        f = case state.f of
-                Ok func -> render func
-                Err err -> err
+        fRender = case state.f of
+            Ok func -> render func
+            Err err -> err
+        simple_f = case state.f of
+            Ok func -> render <| simplify func
+            Err _ -> ""
         df = case state.f of
-                Ok func -> render <| differentiate func
-                Err err -> err
+            Ok func -> Ok <| differentiate func
+            Err err -> Err err
+        dfRender = case df of
+            Ok func -> render <| func
+            Err _ -> ""
+        simple_df = case df of
+            Ok func -> render <| simplify func
+            Err _ -> ""
+
     in
         div [][
             div [][
                 input [onInput UPDATE_F][]
-            ],
-            div [][
+            ]
+            ,div [][
                 input [type_ "number", onInput UPDATE_X][]
-            ],
-            div [][text <| String.fromFloat <| withDefault 0 <| state.f_y],
-            div [][text <| f],
-            div [][text <| df]
+            ]
+            ,div [][text "f(x)"]
+            ,div [][text <| String.fromFloat <| withDefault 0 <| state.f_y]
+            ,div [][text "f"]
+            ,div [][text fRender]
+            ,div [][text "simplified f"]
+            ,div [][text simple_f]
+            ,div [][text "f'"]
+            ,div [][text dfRender]
+            ,div [][text "simplified f'"]
+            ,div [][text simple_df]
         ]
 
 main = Browser.sandbox {

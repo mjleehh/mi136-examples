@@ -8,7 +8,7 @@ import Render exposing (render)
 import Evaluate exposing (evalFunc)
 
 differentiate : Sum -> Sum
-differentiate sum = log "d" <|
+differentiate sum =
     let
         diffTerm : SumOperation -> Sum
         diffTerm val = case val of
