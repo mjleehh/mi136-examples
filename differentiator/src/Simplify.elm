@@ -1,11 +1,14 @@
 module Simplify  exposing (simplify)
 
+import List.Extra
 import Grammar exposing (..)
 import Debug exposing (log)
 
 sumZeroTerm = [MUL [ID <| NUM 0]]
 multOneTerm = [ID <| NUM 1]
 multZeroTerm = [ID <| NUM 0]
+powZeroTerm = ID <| NUM 0
+powOneTerm = ID <| NUM 1
 
 simplify : Sum -> Sum
 simplify sum =
@@ -136,9 +139,9 @@ simplifyMult mult =
                 list
     in
         replaceEmtpyWithOne
+        <| List.filter isNonOne
         <| applyNumberTerms
         <| zeroIfContainsZero
-        <| List.filter isNonOne
         <| List.concatMap removeUselessBlocks
         <| List.map simplyfyTerm mult
 
@@ -147,13 +150,20 @@ simplifyPow : Pow -> Pow
 simplifyPow pow =
     let
         simplfyTerm term = simplifyFunc term
+        tillZero = List.Extra.takeWhile (\elem -> elem /= powZeroTerm) pow
     in
         List.map simplfyTerm pow
 
 simplifyFunc : Func -> Func
 simplifyFunc func = case func of
     ID atomic -> ID <| simplifyAtomic atomic
-    _ -> func
+    FUNC f arg-> case arg of
+        SUM sum -> case simplify sum of
+            [POS [MUL [ID VAR]]] -> FUNC f VAR
+            [POS [MUL [ID (NUM n)]]] -> FUNC f (NUM n)
+            simplified -> FUNC f <| SUM simplified
+        _ -> func
+
 
 simplifyAtomic : AtomicTerm -> AtomicTerm
 simplifyAtomic atomic = case atomic of
